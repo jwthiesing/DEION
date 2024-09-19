@@ -1,0 +1,12 @@
+#			
+#	Tropical Tidbits Infrared Imagery Color Table; converted to cpt by EastNorCarWX
+#	
+#COLOR_MODEL = RGB
+180		128 0 127
+195		0 128 255
+210		58 185 255
+220		125 153 255
+230		128 255 130
+240		255 255 128
+260		255 128 0
+280		128 0 0

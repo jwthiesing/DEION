@@ -43,7 +43,7 @@ def read_cmap(fname):
 		colormap_data_points.append((1.0, colormap_data[-1]))
 	return LinearSegmentedColormap.from_list('custom_cmap', colormap_data_points)
 
-def plot(passfname, passrow, basin, year, index):
+def plot(passfname, passrow, basin, year, index, zoom=None):
 	import matplotlib.pyplot as plt
 	import cartopy.crs as ccrs
 	import cartopy.feature as cfeature
@@ -91,6 +91,7 @@ def plot(passfname, passrow, basin, year, index):
 
 	states_provinces = cfeature.NaturalEarthFeature(category='cultural',name='admin_1_states_provinces_lines',scale='50m',facecolor='none')
 	cmap_89 = read_cmap('./nrl89H.ct')
+	cmap_37 = read_cmap('./nrl37.ct')
 
 	fig, ax = plt.subplots(2,2, gridspec_kw={'wspace': 0.1, 'hspace': 0.1, 'left': 0.05, 'right': 0.95, 'bottom': 0.05, 'top': 0.95}, subplot_kw={'projection': ccrs.PlateCarree()})
 	ax0, ax1 = ax[0]
@@ -189,7 +190,7 @@ def plot(passfname, passrow, basin, year, index):
 		ax0.add_feature(cfeature.LAND)
 		ax0.add_feature(cfeature.COASTLINE)
 		ax0.add_feature(states_provinces, edgecolor='gray')
-		pcm = ax0.pcolormesh(coords37[1], coords37[0], data37[0], cmap=cmap_89.reversed(), vmin=125, vmax=300)
+		pcm = ax0.pcolormesh(coords37[1], coords37[0], data37[0], cmap=cmap_37, vmin=125, vmax=300)
 		divider = make_axes_locatable(ax0)
 		cax = divider.append_axes("right", size="5%", pad=0.05, axes_class=plt.Axes)
 		plt.colorbar(pcm, cax=cax, label='Brightness Temperature (K)')
@@ -210,6 +211,8 @@ def plot(passfname, passrow, basin, year, index):
 		ax1.set_title(data89[0].attrs['frequency'])
 		ax1.set_xlim(xlim[0],xlim[1])
 		ax1.set_ylim(ylim[0],ylim[1])
+
+		cax.set_title("Inspiration & Colortables, Data:\n@CocoasCola & Deelan Jariwala, TC-PRIMED\nPlot: @JWThiesing", loc='center', fontsize=8)
 	
 	if dataradar is None or coordsradar is None:
 		ax3.set_visible(False)
@@ -229,7 +232,11 @@ def plot(passfname, passrow, basin, year, index):
 		ax3.set_title(f'Ku Reflectivity at 2.4 km')
 		ax3.set_xlim(xlim[0],xlim[1])
 		ax3.set_ylim(ylim[0],ylim[1])
-	
+
+	#if not zoom is None:
+	#	zoom = float(zoom)
+	#	
+
 	plt.tight_layout()
 	plt.show()
 	return
@@ -251,6 +258,7 @@ if __name__ == "__main__":
 	parser.add_argument('enddate')
 	parser.add_argument('-restrict_instrument', action='store_true')
 	parser.add_argument('--instrument')
+	parser.add_argument('--zoom', default=None)
 	args = parser.parse_args(sys.argv[1:])
 	year = int(args.year)
 	index = str(args.index).rjust(2, '0')
@@ -264,4 +272,4 @@ if __name__ == "__main__":
 	for ii, passrow in passes.iterrows():
 		if args.restrict_instrument and (not args.instrument == passrow.platform):
 			continue
-		plot(DOWNDIR+passrow.name, passrow, args.basin, year, index)
+		plot(DOWNDIR+passrow.name, passrow, args.basin, year, index, zoom=args.zoom)
