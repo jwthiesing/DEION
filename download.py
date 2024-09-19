@@ -36,7 +36,7 @@ def downloadstorm(basin=None, year=None, index=None, start=None, end=None):
 	#print(passes)
 	for name in passes.index:
 		downloadfile(directory, name)
-	return passes
+	return passes.sort_values(by='dati')
 
 def downloadfile(directory, name):
 	if not os.path.isfile(DOWNDIR+name):
