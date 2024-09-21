@@ -1,5 +1,5 @@
 import xarray as xr
-#import numpy as np
+import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 
 DOWNDIR = "./Data/"
@@ -233,9 +233,26 @@ def plot(passfname, passrow, basin, year, index, zoom=None):
 		ax3.set_xlim(xlim[0],xlim[1])
 		ax3.set_ylim(ylim[0],ylim[1])
 
-	#if not zoom is None:
-	#	zoom = float(zoom)
-	#	
+	if not zoom is None:
+		zoom = float(zoom)
+		storm_metadata = xr.open_dataset(passfname, group='/overpass_storm_metadata')
+		lat = storm_metadata.storm_latitude
+		lon = np.where(storm_metadata.storm_longitude > 180, (storm_metadata.storm_longitude)-360, storm_metadata.storm_longitude)
+		#print(storm_metadata.storm_longitude, lon)
+		bottom = (lat-zoom).values
+		top = (lat+zoom).values
+		left = (lon-zoom)
+		right = (lon+zoom)
+		#print(bottom, top, left, right)
+
+		ax0.set_xlim(left, right)
+		ax0.set_ylim(bottom, top)
+		ax1.set_xlim(left, right)
+		ax1.set_ylim(bottom, top)
+		ax2.set_xlim(left, right)
+		ax2.set_ylim(bottom, top)
+		ax3.set_xlim(left, right)
+		ax3.set_ylim(bottom, top)
 
 	plt.tight_layout()
 	plt.show()
@@ -256,8 +273,8 @@ if __name__ == "__main__":
 	parser.add_argument('index')
 	parser.add_argument('startdate')
 	parser.add_argument('enddate')
-	parser.add_argument('-restrict_instrument', action='store_true')
-	parser.add_argument('--instrument')
+	#parser.add_argument('-restrict_instrument', action='store_true')
+	parser.add_argument('--restrict_instrument', default=None)
 	parser.add_argument('--zoom', default=None)
 	args = parser.parse_args(sys.argv[1:])
 	year = int(args.year)
@@ -270,6 +287,6 @@ if __name__ == "__main__":
 
 	passes = download.downloadstorm(basin=args.basin, year=year, index=index, start=startdati, end=enddati)
 	for ii, passrow in passes.iterrows():
-		if args.restrict_instrument and (not args.instrument == passrow.platform):
+		if not args.restrict_instrument is None and (not args.restrict_instrument == passrow.platform):
 			continue
 		plot(DOWNDIR+passrow.name, passrow, args.basin, year, index, zoom=args.zoom)
