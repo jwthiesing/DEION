@@ -48,6 +48,7 @@ def plot(passfname, passrow, basin, year, index, zoom=None):
 	import cartopy.crs as ccrs
 	import cartopy.feature as cfeature
 	from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable
+	import matplotlib.colors as mpcolors
 
 	from elliotdvorakv2 import gettable
 	#import matplotlib as mpl
@@ -177,11 +178,12 @@ def plot(passfname, passrow, basin, year, index, zoom=None):
 		ax2.add_feature(cfeature.LAND)
 		ax2.add_feature(cfeature.COASTLINE)
 		ax2.add_feature(states_provinces, edgecolor='gray')
-		cmap, norm = gettable()
-		pcm = ax2.pcolormesh(coordsir[1], coordsir[0], datair-273.15, cmap=cmap, norm=norm)
+		#cmap, norm = gettable()
+		cmap, norm = bd, mpcolors.Normalize(vmin_bd, vmax_bd)
+		pcm = ax2.pcolormesh(coordsir[1], coordsir[0], datair, cmap=cmap, norm=norm)
 		divider = make_axes_locatable(ax2)
 		cax = divider.append_axes("right", size="5%", pad=0.05, axes_class=plt.Axes)
-		plt.colorbar(pcm, cax=cax, label='Brightness Temperature (C)')
+		plt.colorbar(pcm, cax=cax, label='Brightness Temperature (K)')
 		ax2.set_title("Infrared Brightness Temperature")
 
 	xlim = ax2.get_xlim()
@@ -215,7 +217,7 @@ def plot(passfname, passrow, basin, year, index, zoom=None):
 		ax1.set_xlim(xlim[0],xlim[1])
 		ax1.set_ylim(ylim[0],ylim[1])
 
-		cax.set_title("Inspiration & Colortables, Data:\n@CocoasCola & @LckyTUBA, TC-PRIMED\nPlot: @JWThiesing", loc='center', fontsize=8)
+		cax.set_title("Inspiration & Colortables, Data:\n@CocoasCola & Deelan Jariwala, TC-PRIMED\nPlot: @JWThiesing", loc='center', fontsize=8)
 	
 	if dataradar is None or coordsradar is None:
 		ax3.set_visible(False)
